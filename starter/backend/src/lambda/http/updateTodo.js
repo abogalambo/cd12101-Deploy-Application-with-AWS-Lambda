@@ -7,15 +7,18 @@ const todosTable = process.env.TODOS_TABLE
 export async function handler(event) {
   const todoId = event.pathParameters.todoId
   const updatedTodo = JSON.parse(event.body)
-  const todo = await getTodo(todoId)
+  const userId = "123"
+  const todo = await getTodo(userId, todoId)
 
   if(!!todo) {
+    const todoAttributes = {
+      ...todo,
+      ...updatedTodo
+    }
+
     await dynamoDbClient.put({
       TableName: todosTable,
-      Item: {
-        todoId,
-        ...updatedTodo
-      }
+      Item: todoAttributes
     })
 
     return {
@@ -23,10 +26,7 @@ export async function handler(event) {
       headers: {
         'Access-Control-Allow-Origin': '*'
       },
-      body: JSON.stringify({
-        todoId,
-        ...updatedTodo
-      })
+      body: JSON.stringify(todoAttributes)
     }
   } else {
     return {
@@ -39,13 +39,13 @@ export async function handler(event) {
       })
     }
   }
-  
 }
 
-async function getTodo(todoId) {
+async function getTodo(userId, todoId) {
   const result = await dynamoDbClient.get({
     TableName: todosTable,
     Key: {
+      userId,
       todoId
     }
   })

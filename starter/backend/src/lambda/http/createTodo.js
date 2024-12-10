@@ -10,16 +10,18 @@ const todosTable = process.env.TODOS_TABLE
 
 export async function handler(event) {
   console.log('Processing event: ', event)
-  const itemId = uuidv4()
-
   const parsedBody = JSON.parse(event.body)
 
   // const authorization = event.headers.Authorization
   // const userId = getUserId(authorization)
+  const userId = "123"
+  const todoId = uuidv4()
+  const createdAt = new Date().toISOString()
 
   const newTodo = {
-    todoId: itemId,
-    // userId,
+    userId,
+    todoId,
+    createdAt,
     ...parsedBody
   }
 

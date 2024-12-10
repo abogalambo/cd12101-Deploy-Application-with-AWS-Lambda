@@ -7,15 +7,22 @@ import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'
 const dynamoDbClient = DynamoDBDocument.from(new DynamoDB())
 
 const todosTable = process.env.TODOS_TABLE
+const todosCreatedAtIndex = process.env.TODOS_INDEX
 
 export async function handler(event) {
   console.log('Processing event: ', event)
+  const userId = "123"
 
-  const scanCommand = {
-    TableName: todosTable
-  }
-  
-  const result = await dynamoDbClient.scan(scanCommand)
+  const result = await dynamoDbClient.query({
+    TableName: todosTable,
+    IndexName: todosCreatedAtIndex,
+    KeyConditionExpression: 'userId = :userId',
+    ExpressionAttributeValues: {
+      ':userId': userId
+    },
+    ScanIndexForward: false
+  })
+
   const items = result.Items
 
   return {

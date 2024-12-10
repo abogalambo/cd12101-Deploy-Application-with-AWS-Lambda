@@ -6,13 +6,15 @@ const todosTable = process.env.TODOS_TABLE
 
 export async function handler(event) {
   const todoId = event.pathParameters.todoId
-  const todo = await getTodo(todoId)
+  const userId = "123"
+  const todo = await getTodo(userId, todoId)
 
   if(!!todo) {
     await dynamoDbClient.delete({
       TableName: todosTable,
       Key: {
-        todoId: todoId
+        userId,
+        todoId
       }
     })
 
@@ -38,10 +40,11 @@ export async function handler(event) {
   }
 }
 
-async function getTodo(todoId) {
+async function getTodo(userId, todoId) {
   const result = await dynamoDbClient.get({
     TableName: todosTable,
     Key: {
+      userId,
       todoId
     }
   })
