@@ -1,45 +1,53 @@
 import { DynamoDB } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'
+import middy from '@middy/core'
+import cors from '@middy/http-cors'
+import httpErrorHandler from '@middy/http-error-handler'
 import { getUserId } from '../utils.mjs'
 
 const dynamoDbClient = DynamoDBDocument.from(new DynamoDB())
 const todosTable = process.env.TODOS_TABLE
 
-export async function handler(event) {
-  const todoId = event.pathParameters.todoId
-  const userId = getUserId(event)
-  const todo = await getTodo(userId, todoId)
-
-  if(!!todo) {
-    await dynamoDbClient.delete({
-      TableName: todosTable,
-      Key: {
-        userId,
-        todoId
-      }
+export const handler = middy()
+  .use(httpErrorHandler())
+  .use(
+    cors({
+      credentials: true
     })
+  )
+  .handler(async (event) => {
+    const todoId = event.pathParameters.todoId
+    const userId = getUserId(event)
+    const todo = await getTodo(userId, todoId)
 
-    return {
-      statusCode: 204,
-      headers: {
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: JSON.stringify({
-        message: "todo deleted successfully"
+    if(!!todo) {
+      await dynamoDbClient.delete({
+        TableName: todosTable,
+        Key: {
+          userId,
+          todoId
+        }
       })
-    }
-  } else {
-    return {
-      statusCode: 404,
-      headers: {
-        'Access-Control-Allow-Origin': '*'
-      },
-      body: JSON.stringify({
-        message: "todo not found"
-      })
+
+      return {
+        statusCode: 204,
+        headers: {
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({
+          message: "todo deleted successfully"
+        })
+      }
+    } else {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({
+          message: "todo not found"
+        })
+      }
     }
   }
-}
+)
 
 async function getTodo(userId, todoId) {
   const result = await dynamoDbClient.get({
