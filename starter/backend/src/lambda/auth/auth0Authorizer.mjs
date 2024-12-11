@@ -4,7 +4,7 @@ import { createLogger } from '../../utils/logger.mjs'
 
 const logger = createLogger('auth')
 
-const jwksUrl = 'https://test-endpoint.auth0.com/.well-known/jwks.json'
+const jwksUrl = 'https://dev-2qf4nym7ekg4r4w5.us.auth0.com/.well-known/jwks.json'
 
 export async function handler(event) {
   try {
@@ -47,7 +47,7 @@ async function verifyToken(authHeader) {
   const jwt = jsonwebtoken.decode(token, { complete: true })
 
   // TODO: Implement token verification
-  return undefined;
+  return jwt;
 }
 
 function getToken(authHeader) {

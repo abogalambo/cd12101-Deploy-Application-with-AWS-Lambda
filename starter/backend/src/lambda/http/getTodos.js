@@ -1,5 +1,6 @@
 import { DynamoDB } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'
+import { getUserId } from '../utils.mjs'
 // import middy from '@middy/core'
 // import cors from '@middy/http-cors'
 // import httpErrorHandler from '@middy/http-error-handler'
@@ -11,7 +12,7 @@ const todosCreatedAtIndex = process.env.TODOS_INDEX
 
 export async function handler(event) {
   console.log('Processing event: ', event)
-  const userId = "123"
+  const userId = getUserId(event)
 
   const result = await dynamoDbClient.query({
     TableName: todosTable,

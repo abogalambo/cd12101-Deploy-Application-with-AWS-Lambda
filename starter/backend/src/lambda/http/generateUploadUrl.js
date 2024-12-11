@@ -3,6 +3,7 @@ import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'
 
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { getUserId } from '../utils.mjs'
 
 const s3Client = new S3Client()
 const bucketName = process.env.ATTACHMENTS_S3_BUCKET
@@ -13,7 +14,7 @@ const todosTable = process.env.TODOS_TABLE
 
 export async function handler(event) {
   const todoId = event.pathParameters.todoId
-  const userId = "123"
+  const userId = getUserId(event)
   const todo = await getTodo(userId, todoId)
 
   // TODO raise error if todo does not exist
