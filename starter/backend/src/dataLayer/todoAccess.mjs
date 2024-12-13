@@ -1,3 +1,5 @@
+import AWSXRay from 'aws-xray-sdk-core'
+
 import { DynamoDB } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'
 
@@ -6,8 +8,8 @@ export class TodoAccess {
         todosTable = process.env.TODOS_TABLE,
         todosCreatedAtIndex = process.env.TODOS_INDEX
     ) {
-        this.documentClient = new DynamoDB()
-        this.dynamoDbClient = DynamoDBDocument.from(this.documentClient)
+        const dynamoDbXRay = AWSXRay.captureAWSv3Client(new DynamoDB()) 
+        this.dynamoDbClient = DynamoDBDocument.from(dynamoDbXRay)
         this.todosTable = todosTable
         this.todosCreatedAtIndex = todosCreatedAtIndex
     }
